@@ -23,7 +23,10 @@ sub ReadConf {
 	    chomp($contents);
 	}
 	$keytable{$tag} = [] if (!exists($keytable{$tag}));
-	push($keytable{$tag}, {"keyword" => $keyword, "contents" => $contents});
+	my($kc) = $keytable{$tag};
+	my(@kc) = @$kc;
+	push(@kc, {"keyword" => $keyword, "contents" => $contents});
+	$keytable{$tag} = \@kc;
     }
     close(FH);
     return %keytable;

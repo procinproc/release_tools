@@ -1,5 +1,6 @@
-# $AICS_copyright:$
-# $AICS_Release:$
+# $AICS_copyright: copyright 2103 RIKEN aics 
+# 	All right reserved.$
+# $AICS_Release: Released by AICS$
 .SUFFIXES: .pl
 INSTALL_ROOT = /work/release
 all: perllib add_keyword expand_keyword
