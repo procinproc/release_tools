@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 
-# $AICS_copyright:$
-# $AICS_Release:$
+# $AICS_copyright$
 use lib qw(@PERLLIB@);
 use Getopt::Long;
 use File::Find;
@@ -12,7 +11,7 @@ use strict;
 use warnings;
 use vars qw($help %config $config @tag @keyword $t);
 
-$config = "release.conf";
+$config = "@PERLETC@/release.conf";
 @keyword = ();
 sub match_1st {
     my($expr, $file) = @_;

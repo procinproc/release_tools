@@ -1,3 +1,4 @@
+# $AICS_copyright:$
 package Release;
 use Exporter 'import';
 use strict;
@@ -127,7 +128,7 @@ sub FileToComment {
 	}
 
 # for perl and tcl
-	if ($sufix eq ".pl" || $sufix eq ".tcl") {
+	if ($sufix eq ".pl" || $sufix eq ".tcl" || $sufix eq ".pm") {
 	    return GetCommentStyle("shell");
 	}
 

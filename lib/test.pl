@@ -1,7 +1,5 @@
 #!/usr/bin/perl
-
-# $AICS_copyright:$
-# $AICS_Release:$
+# $AICS_copyright$
 use strict;
 use warnings;
 use Data::Dumper;

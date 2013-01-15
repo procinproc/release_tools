@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# $AICS_copyright:$
+# $AICS_copyright: copyright 2013 RIKEN aics All right reserved.$
 
 
 use Getopt::Long;
