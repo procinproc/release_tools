@@ -1,12 +1,20 @@
-# $AICS_Release$
-# $AICS_Copyright$
-all: add_keywd expand_keywd
+# $AICS_copyright:$
+# $AICS_Release:$
+.SUFFIXES: .pl
+INSTALL_ROOT = /work/release
+all: perllib add_keyword expand_keyword
 
-add_keywd: add_keywd.pl
-	rm -f expand_keywd add_keywd
-	cp add_keywd.pl add_keywd
-	chmod a+x add_keywd
-	ln -s add_keywd expand_keywd
+perllib:
+	cd lib;perl Makefile.PL INSTALL_BASE=$(INSTALL_ROOT);make
+.pl:
+	sed "s,@PERLLIB@,$(INSTALL_ROOT)/lib/perl5," $< > $@
+	chmod a+x $@
 
+install:
+	cd lib;make install
+	[ -d $(INSTALL_ROOT)/bin ] || mkdir $(INSTALL_ROOT)/bin
+	install -m 755 add_keyword expand_keyword $(INSTALL_ROOT)/bin
 clean:
-	rm expand_keywd add_keywd
+	cd lib;make distclean
+	rm -rf perllib
+	rm add_keyword expand_keyword

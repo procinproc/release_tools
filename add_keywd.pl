@@ -1,103 +1,88 @@
 #!/usr/bin/perl
 
+# $AICS_copyright:$
+
 
 use Getopt::Long;
 use File::Find;
+use File::Basename;
 
+%comment = (
+    "c" => {'start' => '/* ',
+        'cont' => ' * ',
+	'end' => ' */'},
+    "shell" => {'start' => '# ',
+        'cont' => '# '
+	'end' => '# '},
+    "imake" => {'start' => 'XCOMM ',
+        'cont' => 'XCOMM '
+	'end' => 'XCOMM '},
+    "lisp" => {'start' => '; ',
+        'cont' => '; '
+	'end' => '; '},
+    "Verilog" => {'start' => '// ',
+        'cont' => '// '
+	'end' => '// '},
+    "as" => {'start' => '/* ',
+        'cont' => ' * ',
+	'end' => ' */'},
+    "java" => {'start' => '/* ',
+        'cont' => ' * ',
+	'end' => ' */'},
+    "html" => {'start' => '<!-- ',
+        'cont' => '    ',
+	'end' => ' -->'},
+    "f77" => {'start' => 'c     ',
+        'cont' => 'c    ',
+	'end' => 'c      '},
+    "f90" => {'start' => '! ',
+        'cont' => '! ',
+	'end' => '! '},
+)       
 
-%C_Comment = (
-	      'start', '/* ',
-	      'cont',  ' * ',
-	      'end',   ' */',
-	      );
-
-%Shell_Comment = (
-		  'start', '# ',
-		  'cont',  '# ',
-		  'end',   '# ',
-		  );
-
-%Imake_Comment = (
-		  'start', 'XCOMM ',
-		  'cont',  'XCOMM ',
-		  'end',   'XCOMM ',
-		  );
-
-%Lisp_Comment = (
-		  'start', '; ',
-		  'cont',  '; ',
-		  'end',   '; ',
-		  );
-
-%Verilog_Comment = (
-	      'start', '// ',
-	      'cont',  '// ',
-	      'end',   '// ',
-	      );
-
-%As_Comment = (
-	      'start', '/* ',
-	      'cont',  ' * ',
-	      'end',   ' */',
-	      );
-
-%Java_Comment = (
-	      'start', '/* ',
-	      'cont',  ' * ',
-	      'end',   ' */',
-	      );
-
-%Html_Comment = (
-		 'start', '<!-- ',
-		 'cont',  '     ',
-		 'end',   '-->  ',
-		 );
 
 sub GetFileName {
     local($name) = @_;
     local(@list) = split(/\//, $name);
-    return $list[$#list];
+    return pop(@list);
 }
 
 
 sub GetDirName {
     local($name) = @_;
     local(@list) = split(/\//, $name);
-    $list[$#list] = "";
+    pop(@list);
     return join('/', @list);
 }
 
 
 sub GetTmpName {
     local($file) = @_;
-    return &GetDirName($file) . ".~###" . &GetFileName($file) . ".$$";
+    return GetDirName($file) . ".~###" . &GetFileName($file) . ".$$";
 }
 
 sub GetSuffix {
-    local($file) = &GetFileName(@_);
-    local(@list) = split(/\./, $file);
-    if ( @list == 1 ) {
-	return "";
-    }
-    return "." . $list[$#list];
+    local($file) = GetFileName(@_);
+    local($suffix) = $file =~ /(\.[^.]*)$/;
+    return $suffix;
 }
 
 
 sub GetPrefix {
     local($file) = &GetFileName(@_);
-    local(@list) = split(/\./, $file);
-    return $list[0];
+    $file =~ s/\.[^.]*$//;
+    return $file;
 }
 
 
 sub GuessFileType {
     local($file) = @_;
-    local($sufix) = &GetSuffix($file);
-    local($prfix) = &GetPrefix($file);
+    local($sufix) = GetSuffix($file);
+    local($prfix) = GetPrefix($file);
     local($guess) = "unknown";
 
     # for Makefile
-    if ($prfix =~ /.*[Mm]akefile/) {
+    if ($prfix =~ /[Mm]akefile/) {
 	if ($prfix !~ /^Imakefile$/) {
 	    $guess = "shell";
 	} else {
@@ -135,6 +120,12 @@ sub GuessFileType {
     if ($sufix eq ".java") {
 	$guess = "java";
     }
+    if ($sufix eq ".f" || $sufix eq ".F") {
+	$guess = "f77";
+    }
+    if ($sufix eq ".f90" || $sufix eq ".F90") {
+	$guess = "f90";
+    }
 
     # for ocore..
     # if () {};
@@ -151,20 +142,16 @@ sub GuessFileType {
     open(IN, "<$file") || die "can't open $file.";
     while(<IN>) {
 	local($d0, $d1);
-	next if /^\n/;
-	chop;
+	next if /^$/;
+	chomp;
 	$header = $_;
-	($first, $d0, $d1) = split(/[ \t]+/, $_, 3);
-#	print "debug:\t0 $first\n\t1 $d0\n\t2 $d1\n";
-	if ( $first eq "" ) {
-	    $first = $d0;
-	}
 	last;
     }
     close(IN);
 
-    if ( $header =~ /^#[ \t]*.*$\!/ ) {
-	local($exec) = &GetFileName($header);
+    if ( $header =~ /^#\s*!/ ) {
+	$header =~ s/^#\s*!\s*//;
+	local($exec) = GetFileName($header);
 #	print "debug: exec = $exec\n";
 	if ( $exec =~ /.*sh$/ || $exec eq "perl" || $exec eq "wish") {
 	    return "shell";
@@ -217,8 +204,8 @@ sub PutHeader {
     local ($start) = $com{"start"};
     local ($cont) = $com{"cont"};
     local ($end) = $com{"end"};
-    local ($tmpfile) = &GetTmpName($file);
-    local ($sufix) = &GetSuffix($file);
+    local ($tmpfile) = GetTmpName($file);
+    local ($sufix) = GetSuffix($file);
 
     if (! -e $file ) {
 	open(NEW, ">$file");
@@ -271,18 +258,6 @@ sub PutHeader {
 	}
     }
 
-#    if (!@DontRCSID) {
-#	if ($IsC) {
-#	    print(OUT "static char rcsid[] = \"\$Id\$\";\n");
-#	}
-#	else {
-#	    if ($IsMultilineComment) {
-#		print(OUT "$start\n");
-#		$In_comment = 1;
-#	    }
-#	    print(OUT $cont . "\$Id\$\n");
-#	}
-#    }
 
     if ($IsMultilineComment && !$In_comment) {
 	print(OUT "$start\n");

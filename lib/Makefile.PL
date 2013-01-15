@@ -3,7 +3,6 @@
 use ExtUtils::MakeMaker;
 $perl_version = ($] >= 5.006)? sprintf("%vd", $^V): sprintf("%.3f", $]);
 WriteMakefile(
-    'LIB' => '../perllib',
     'INSTALLMAN1DIR' => 'none',
     'INSTALLMAN3DIR' => 'none',
     'NAME' => 'Release',
