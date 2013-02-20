@@ -1,4 +1,5 @@
-# $AICS_copyright$
+# $RIKEN_Copyright:$
+# $Release_tool_version:$
 use ExtUtils::MakeMaker;
 $perl_version = ($] >= 5.006)? sprintf("%vd", $^V): sprintf("%.3f", $]);
 WriteMakefile(

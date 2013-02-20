@@ -1,6 +1,8 @@
 #!/usr/bin/perl
 
-# $AICS_copyright$
+# $RIKEN_Copyright:$
+# $Release_tool_version:$
+
 use lib qw(@PERLLIB@);
 use Getopt::Long;
 use File::Find;

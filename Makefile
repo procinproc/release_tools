@@ -1,4 +1,5 @@
-# $AICS_copyright$
+# $RIKEN_Copyright:$
+# $Release_tool_version:$
 .SUFFIXES: .pl
 INSTALL_ROOT = /work/release
 all: perllib add_keyword expand_keyword

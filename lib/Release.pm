@@ -1,4 +1,5 @@
-# $AICS_copyright:$
+# $RIKEN_Copyright:$
+# $Release_tool_version:$
 package Release;
 use Exporter 'import';
 use strict;

@@ -1,5 +1,7 @@
 #!/usr/bin/perl
-# $AICS_copyright$
+
+# $RIKEN_Copyright:$
+# $Release_tool_version:$
 use strict;
 use warnings;
 use Data::Dumper;
