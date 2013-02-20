@@ -18,5 +18,6 @@ install:
 	install -m 755 add_keyword expand_keyword $(INSTALL_ROOT)/bin
 	install -m 755 release.conf $(INSTALL_ROOT)/etc
 clean:
-	-cd lib;$(MAKE) disttclean
-	rm add_keyword expand_keyword
+	-cd lib;$(MAKE) distclean
+	rm -f add_keyword expand_keyword
+distclean: clean
