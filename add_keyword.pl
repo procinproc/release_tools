@@ -1,8 +1,5 @@
 #!/usr/bin/perl
 
-# $RIKEN_Copyright:$
-# $Release_tool_version:$
-
 use lib qw(@PERLLIB@);
 use Getopt::Long;
 use File::Find;
@@ -13,8 +10,6 @@ use strict;
 use warnings;
 use vars qw($help %config $config @tag @keyword $t);
 
-$config = "@PERLETC@/release.conf";
-@keyword = ();
 sub match_1st {
     my($expr, $file) = @_;
     open(IN, "<$file");
@@ -117,32 +112,6 @@ sub PutHeader {
 }
 
 
-sub Usage {
-    print(STDOUT "usage:\n");
-    print(STDOUT "\t$0 -help\n");
-    print(STDOUT "\t\tor\n");
-    print(STDOUT "\t$0 -config config_file [-tag tag] files ...\n");
-}
-
-
-sub ErrorExit {
-    my($stat, $mes) = @_;
-    print(STDERR "Error: $mes\n");
-    &Usage();
-    exit($stat);
-}
-
-
-sub ArgCheck {
-    if ($help) {
-	&Usage();
-	exit(0);
-    }
-    if (!@ARGV) {
-	&ErrorExit(1, "No files are specified.");
-    }
-}
-   
 sub wanted {
    my ($save) = $_;
    my ($i) = $save;
@@ -167,23 +136,8 @@ sub process_file {
    PutHeader($i, \@keyword, %$comment) if(defined($comment));
 }
 
-GetOptions("config=s" => \$config, "tag=s" => \@tag, "help" => \$help);
-@tag = split(/,/, join(',', @tag));
 
-ArgCheck();
-%config = ReadConf($config);
-
-if(@tag) {
-    foreach $t (@tag) {
-	my($c) = $config{$t};
-        push(@keyword, map {$_->{'keyword'} } @$c); 
-    }
-} else {
-    foreach $t (keys %config) {
-	my($c) = $config{$t};
-        push(@keyword, map {$_->{'keyword'} } @$c); 
-    }
-}
+@keyword = GetConfKeywords();
 
 find({wanted => \&wanted}, @ARGV);
 exit(0);

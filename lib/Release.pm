@@ -2,39 +2,74 @@
 # $Release_tool_version:$
 package Release;
 use Exporter 'import';
+use Getopt::Long;
+use Data::Dumper;
 use strict;
 use warnings;
-use vars qw($VERSION %comment @ISA @EXPORT @EXPORT_OK);
+use vars qw($VERSION %comment @ISA @EXPORT @EXPORT_OK @config @tag $help %keytable %contents);
 
 @ISA = qw(Exporter);
-@EXPORT = qw(ReadConf FileToComment);
-@EXPORT_OK = qw(ReadConf FileToComment);
-$VERSION = 0.1;
+@EXPORT = qw(GetConfKeywords GetConfContents FileToComment);
+@EXPORT_OK = qw(GetConfKeywords GetConfContents FileToComment);
+$VERSION = 0.2;
 
+%keytable = ();
 sub ReadConf {
-    my ($file) = @_;
-    my ($tag, $keyword, $contents, %keytable);
-    open(FH, "<$file") || return undef;
-    while(<FH>) {
-	next if (/^#/);
-	($tag, $keyword, $contents) = split(/\s/,$_, 3);
-	chomp($contents);
-	while ($contents =~ /\\$/) {
-	    $contents =~ s/\\$/\n/;
-	    $contents .= <FH>;
-	    chomp($contents);
+    my (@file) = @_;
+    my ($file, $tag, $keyword, $contents);
+    foreach $file (@file) {
+	if(!open(FH, "<$file")) {
+	    print "cannot open config file $file\n";
+	    next;
 	}
-	$keytable{$tag} = [] if (!exists($keytable{$tag}));
-	my($kc) = $keytable{$tag};
-	my(@kc) = @$kc;
-	push(@kc, {"keyword" => $keyword, "contents" => $contents});
-	$keytable{$tag} = \@kc;
+	while(<FH>) {
+	    next if (/^#/);
+	    ($tag, $keyword, $contents) = split(/\s/,$_, 3);
+	    chomp($contents);
+	    while ($contents =~ /\\$/) {
+		$contents =~ s/\\$/\n/;
+		$contents .= <FH>;
+		chomp($contents);
+	    }
+	    $keytable{$tag} = [] if (!exists($keytable{$tag}));
+	    my($kc) = $keytable{$tag};
+	    my(@kc) = @$kc;
+	    push(@kc, {"keyword" => $keyword, "contents" => $contents});
+	    $keytable{$tag} = \@kc;
+	}
+	close(FH);
     }
-    close(FH);
     return %keytable;
 }
 
+sub GetConfKeywords {
+    my($tag, @key);
+    if (@tag) {
+        foreach $tag (@tag) {
+	    if(defined($keytable{$tag})) {
+	        my($c) = $keytable{$tag};
+		my($k);
+		foreach $k (@$c) {
+		    push(@key, $k->{'keyword'});
+		    $contents{$k->{'keyword'}} = $k->{'contents'};
+		}
+	    }
+	}
+	return @key;
+    } else {
+       return keys %keytable;
+    }
+}
 
+sub GetConfContents {
+   my ($key) = @_;
+   return $contents{$key};
+}
+
+# comment description
+# $comment{LANG}->start  comment start line
+# $comment{LANG}->cont   comment continue line
+# $comment{LANG}->end    comment end line
 %comment = (
     "c" => {'start' => '/* ',
         'cont' => ' * ',
@@ -160,7 +195,7 @@ sub FileToComment {
 	}
     }
 
-
+# not determin language only filename... read content of the file
     my($header) = undef;
     my($first) = undef;
 
@@ -193,5 +228,38 @@ sub FileToComment {
 
     return undef;
 }
+
+sub Usage {
+    print(STDOUT "usage:\n");
+    print(STDOUT "\t$0 -help\n");
+    print(STDOUT "\t\tor\n");
+    print(STDOUT "\t$0 -config config_file [-tag tag] files ...\n");
+}
+
+sub ArgCheck {
+    if ($help) {
+	Usage();
+	exit(0);
+    }
+    if (!@ARGV) {
+	ErrorExit(1, "No files are specified.");
+    }
+}
+   
+sub ErrorExit {
+    my($stat, $mes) = @_;
+    print(STDERR "Error: $mes\n");
+    Usage();
+    exit($stat);
+}
+
+# hqandle common argument
+@config = split(/:/, $ENV{"RELEASE_CONF"}) if (defined($ENV{"RELEASE_CONF"}));
+GetOptions("config=s" => \@config, "tag=s" => \@tag, "help" => \$help);
+@config = split(/:/, join(':', @config));
+@tag = split(/,/, join(',', @tag));
+
+ArgCheck();
+ReadConf(@config);
 
 1;

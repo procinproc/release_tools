@@ -5,11 +5,10 @@
 use strict;
 use warnings;
 use Data::Dumper;
-use Release qw(ReadConf FileToComment);
-use vars qw(%config $a);
+use Release;
 
 $a = FileToComment("a.c");
 print Dumper($a);
-%config = ReadConf("test.conf");
-print Dumper(%config);
+print join(' ', GetConfKeywords());
+print Dumper(GetConfContents('test'));
 exit 0;

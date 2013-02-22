@@ -11,10 +11,8 @@ use Release;
 use Data::Dumper;
 use strict;
 use warnings;
-use vars qw($help %config $config @tag @key_contents $t);
+use vars qw(@keywords $t);
 
-$config = "@PERLETC@/release.conf";
-@key_contents = ();
 sub match_1st {
     my($expr, $file) = @_;
     open(IN, "<$file");
@@ -41,19 +39,17 @@ sub GetSuffix {
 }
 
 sub ExpandHeader {
-    my($file, $key_contents) = @_;
+    my($file, @keywords) = @_;
     my($tmpfile, $OUT);
     my($dev, $ino, $mode);
-    my(@key_contents) = @$key_contents;
     open(IN, "<$file") || print "can't open $file.\n";
     ($dev, $ino, $mode) = stat(IN);
     ($OUT, $tmpfile) = tempfile();
     while(<IN>) {
-        my($line, $kc, $replaced);
+        my($line, $k, $replaced);
 	$replaced = 0;
-	foreach $kc (@key_contents) {
-	   my($k) = $kc->{"keyword"};
-	   my($c) = $kc->{"contents"};
+	foreach $k (@keywords) {
+	   my($c) = GetConfContents($k);
 	   if(/^(.*)\$\s*$k([^\$]*\$)(.*)$/) {
 	      my ($pre) = $1;
 	      my ($m) = $2;
@@ -87,33 +83,6 @@ sub ExpandHeader {
     chmod($mode, $file) || die "can't chmod $file";
 }
 
-
-sub Usage {
-    print(STDOUT "usage:\n");
-    print(STDOUT "\t$0 -help\n");
-    print(STDOUT "\t\tor\n");
-    print(STDOUT "\t$0 -config config_file [-tag tag] files ...\n");
-}
-
-
-sub ErrorExit {
-    my($stat, $mes) = @_;
-    print(STDERR "Error: $mes\n");
-    &Usage();
-    exit($stat);
-}
-
-
-sub ArgCheck {
-    if ($help) {
-	&Usage();
-	exit(0);
-    }
-    if (!@ARGV) {
-	&ErrorExit(1, "No files are specified.");
-    }
-}
-   
 sub wanted {
    my ($save) = $_;
    my ($i) = $save;
@@ -135,27 +104,9 @@ sub process_file {
 
    print "Process: $i\n";
    $comment = FileToComment($i);
-   ExpandHeader($i, \@key_contents) if(defined($comment));
+   ExpandHeader($i,@keywords) if(defined($comment));
 }
 
-GetOptions("config=s" => \$config, "tag=s" => \@tag, "help" => \$help);
-@tag = split(/,/, join(',', @tag));
-
-ArgCheck();
-%config = ReadConf($config);
-
-if(@tag) {
-    foreach $t (@tag) {
-	my($c) = $config{$t};
-        push(@key_contents, @$c); 
-    }
-} else {
-    foreach $t (keys %config) {
-	my($c) = $config{$t};
-        push(@key_contents, @$c); 
-    }
-}
-
-    
+@keywords = GetConfKeywords();
 find({wanted => \&wanted}, @ARGV);
 exit(0);
