@@ -123,3 +123,51 @@ sub process_file {
 @keywords = GetConfKeywords();
 find({wanted => \&wanted}, @ARGV);
 exit(0);
+__END__
+=head1 NAME
+
+expand_keyword - Expand keyword into source files for release.
+
+=head1 SYNOPSIS
+
+expand_keyword [-config configfiles] [-tag tags] file file...
+
+=head1 DESCRIPTION
+
+C(expand_keyword) insert text for specific bkeywords in the files.
+The keywords are specifies config files and tags.
+The keywords are inserted in the comment.
+
+=head2 options
+
+=over
+
+=item -config configfiles
+Specify config files.
+If you want to use multiple files, please separate "," to the filenames.
+The filename serched to the path to environment variable RELTOOL_PATH.
+If the environment variable is not set, search @PERLETC@ and current directory.
+
+If -config options is not specified, expand_keyword use environment variable
+RELTOOL_COMF.
+
+=item -tag tags.
+
+Specify tag for the keywords.
+If you want to use multiple tags, please separate "," to the tag.
+If tag is specified, all keyword in the config files are used.
+
+=item file
+
+The file to insert text can specifies multiple files.
+If you specify directory, all files into the directory is used.
+
+=back
+
+expand_keyword inserted text only known language by the add_keyword.
+If you want to add language, please modify Release module.
+
+=head1 SEE ALSO
+
+expand_keyword(1),
+release_config(5).

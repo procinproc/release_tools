@@ -13,6 +13,7 @@
 # along with this program; if not, write to the Free Software 
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.$
 # $RELEASE_TOOL_VERSION: 0.2$
+# Written by Toyohisa Kameyama (kameyama@riken.jp)
 package Release;
 use Exporter 'import';
 use Getopt::Long;
@@ -286,7 +287,7 @@ sub ErrorExit {
 # hqandle common argument
 @path=("@confpath@", ".");
 @path = split(/:/, $ENV{"RELTOOL_PATH"}) if (defined($ENV{"RELTOOL_PATH"}));
-@config = split(/:/, $ENV{"RELTOOL_CONF"}) if (defined($ENV{"RELTOOL_CONF"}));
+@config = split(/,/, $ENV{"RELTOOL_CONF"}) if (defined($ENV{"RELTOOL_CONF"}));
 GetOptions("config=s" => \@config, "tag=s" => \@tag, "help" => \$help);
 @config = split(/,/, join(',', @config));
 @tag = split(/,/, join(',', @tag));
@@ -295,3 +296,46 @@ ArgCheck();
 ReadConf(@config);
 
 1;
+___END___
+
+=head1 name
+
+Release - The library to prepare release tool
+
+=head1 SYNOPSIS
+
+    use Relrease;
+    @keyword = GetConfKeyword();
+    $contents = GetConfContents($keyword);
+    $comment = FileToComment($filename);
+
+=head1 DESCRIPTION
+
+Release module is set of the function to insert or expand keyword to
+release source files.
+The module parse environment variables, command line argument and read
+config files.
+
+=over
+
+=item GetConfKeyword
+
+Get keywords list.
+
+=item GetConfContents($keyword)
+
+Get contents of the keyword.
+
+=item FileToComment($filename)
+
+Get Comment information of the filename.
+The return value is reference of the hash:
+=over
+=item $comment->{'start'}
+The start of comment.
+=item $comment->{'cont'}
+The continue line of comment.
+=item $comment->{'end'}
+The end of comment.
+=back
+=back

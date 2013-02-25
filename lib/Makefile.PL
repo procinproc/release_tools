@@ -15,8 +15,6 @@
 # $RELEASE_TOOL_VERSION: 0.2$
 use ExtUtils::MakeMaker;
 WriteMakefile(
-    'INSTALLMAN1DIR' => 'none',
-    'INSTALLMAN3DIR' => 'none',
     'PM_FILTER' => 'sed s,@confpath@,$(INSTALL_BASE)/etc/,',
     'NAME' => 'Release',
     'VERSION' => '0.1',
