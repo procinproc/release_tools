@@ -1,12 +1,25 @@
-# $RIKEN_Copyright:$
-# $Release_tool_version:$
+# $RIKEN_copyright: copyright 2013 RIKEN All rights reserved.$
+# $GPL2: This program is free software; you can redistribute it and/or 
+# modify it under the terms of the GNU General Public License 
+# as published by the Free Software Foundation; either version 2 
+# of the License, or (at your option) any later version. 
+#  
+# This program is distributed in the hope that it will be useful, 
+# but WITHOUT ANY WARRANTY; without even the implied warranty of 
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+# GNU General Public License for more details. 
+#  
+# You should have received a copy of the GNU General Public License 
+# along with this program; if not, write to the Free Software 
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.$
+# $RELEASE_TOOL_VERSION: 0.2$
 package Release;
 use Exporter 'import';
 use Getopt::Long;
 use Data::Dumper;
 use strict;
 use warnings;
-use vars qw($VERSION %comment @ISA @EXPORT @EXPORT_OK @config @tag $help %keytable %contents);
+use vars qw($VERSION %comment @ISA @EXPORT @EXPORT_OK @config @tag $help %keytable %contents @path);
 
 @ISA = qw(Exporter);
 @EXPORT = qw(GetConfKeywords GetConfContents FileToComment);
@@ -16,10 +29,18 @@ $VERSION = 0.2;
 %keytable = ();
 sub ReadConf {
     my (@file) = @_;
-    my ($file, $tag, $keyword, $contents);
+    my ($f, $file, $tag, $keyword, $contents, $path);
     foreach $file (@file) {
-	if(!open(FH, "<$file")) {
-	    print "cannot open config file $file\n";
+	foreach $path (@path) {
+	    $f = "$path/$file";
+	    last if(-e $f);
+	}
+	if (! -e $f) {
+	    print "cannot find config file $file\n";
+	    next;
+	}
+	if(!open(FH, "<$f")) {
+	    print "cannot open config file $f\n";
 	    next;
 	}
 	while(<FH>) {
@@ -57,6 +78,15 @@ sub GetConfKeywords {
 	}
 	return @key;
     } else {
+        foreach $tag (keys %keytable) {
+	    my($c) = $keytable{$tag};
+	    my($k);
+	    foreach $k (@$c) {
+		push(@key, $k->{'keyword'});
+		$contents{$k->{'keyword'}} = $k->{'contents'};
+	    }
+	}
+	return @key;
        return keys %keytable;
     }
 }
@@ -233,7 +263,7 @@ sub Usage {
     print(STDOUT "usage:\n");
     print(STDOUT "\t$0 -help\n");
     print(STDOUT "\t\tor\n");
-    print(STDOUT "\t$0 -config config_file [-tag tag] files ...\n");
+    print(STDOUT "\t$0 -config config_file,... [-tag tag,...] files ...\n");
 }
 
 sub ArgCheck {
@@ -254,9 +284,11 @@ sub ErrorExit {
 }
 
 # hqandle common argument
-@config = split(/:/, $ENV{"RELEASE_CONF"}) if (defined($ENV{"RELEASE_CONF"}));
+@path=("@confpath@", ".");
+@path = split(/:/, $ENV{"RELTOOL_PATH"}) if (defined($ENV{"RELTOOL_PATH"}));
+@config = split(/:/, $ENV{"RELTOOL_CONF"}) if (defined($ENV{"RELTOOL_CONF"}));
 GetOptions("config=s" => \@config, "tag=s" => \@tag, "help" => \$help);
-@config = split(/:/, join(':', @config));
+@config = split(/,/, join(',', @config));
 @tag = split(/,/, join(',', @tag));
 
 ArgCheck();
