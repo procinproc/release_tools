@@ -136,7 +136,7 @@ expand_keyword - Expand keyword into source files for release.
 
 =head1 SYNOPSIS
 
-expand_keyword [-config configfiles] [-tag tags] file file...
+expand_keyword [-config configfiles] [-tag tags] [-year year] file file...
 
 =head1 DESCRIPTION
 
@@ -157,11 +157,15 @@ If the environment variable is not set, search @PERLETC@ and current directory.
 If -config options is not specified, expand_keyword use environment variable
 RELTOOL_COMF.
 
-=item -tag tags.
+=item -tag tags
 
 Specify tag for the keywords.
 If you want to use multiple tags, please separate "," to the tag.
 If tag is specified, all keyword in the config files are used.
+
+=item -year year
+
+Specify year to replace %y to current year.
 
 =item file
 
