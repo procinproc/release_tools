@@ -20,11 +20,11 @@ use Getopt::Long;
 use Data::Dumper;
 use strict;
 use warnings;
-use vars qw($VERSION %comment @ISA @EXPORT @EXPORT_OK @config @tag $help %keytable %contents @path);
+use vars qw($VERSION %comment @ISA @EXPORT @EXPORT_OK @config @tag $help %keytable %contents @path $year);
 
 @ISA = qw(Exporter);
-@EXPORT = qw(GetConfKeywords GetConfContents FileToComment);
-@EXPORT_OK = qw(GetConfKeywords GetConfContents FileToComment);
+@EXPORT = qw(GetConfKeywords GetConfContents FileToComment addyear);
+@EXPORT_OK = qw(GetConfKeywords GetConfContents FileToComment addyear);
 $VERSION = 0.2;
 
 %keytable = ();
@@ -286,11 +286,55 @@ sub ErrorExit {
     exit($stat);
 }
 
+sub addyear {
+    my($ystr) = @_;
+    return $year if(!defined($ystr));
+    my(@y) = split(/\s*,\s*/, $ystr);
+    my($y, $y1, $y2, %y, @yret, $yret, $ydelim, $lasty);
+    push(@yret, $year);
+    foreach $y (@y) {
+        if (($y1, $y2) = $y =~ /^(\d+)\s*-\s*(\d+)$/) {
+	    my($y3);
+	    if ($y1 < $y2) {
+		for($y3 = $y1; $y3 <= $y2; $y3++) {
+		     push(@yret, $y3);
+		}
+	    } else {
+		for($y3 = $y2; $y3 <= $y1; $y3++) {
+		     push(@yret, $y3);
+		}
+	    }
+	} elsif ($y =~ /^\d+$/) {
+	     push(@yret, $y);
+	} else {
+	    print "Parse error $y, ignore\n";
+	}
+    }
+    $lasty = -1;
+    $ydelim = "";
+    foreach $y (sort {$a <=> $b} @yret) {
+	next if($lasty == $y);
+        if($lasty + 1 < $y) {
+	    $yret .= $ydelim. $lasty, $ydelim = "," if($ydelim eq "-");
+	    $yret .= $ydelim. $y;
+	    $ydelim = ",";
+	} else {
+	    $ydelim = "-";
+	}
+	$lasty = $y;
+    }
+    $yret .= $ydelim . $lasty if ($ydelim eq "-");
+    return $yret;
+
+}
+
 # hqandle common argument
 @path=("@confpath@", ".");
+$year = (localtime())[5] + 1900;
 @path = split(/:/, $ENV{"RELTOOL_PATH"}) if (defined($ENV{"RELTOOL_PATH"}));
 @config = split(/,/, $ENV{"RELTOOL_CONF"}) if (defined($ENV{"RELTOOL_CONF"}));
-GetOptions("config=s" => \@config, "tag=s" => \@tag, "help" => \$help);
+GetOptions("config=s" => \@config, "tag=s" => \@tag, "help" => \$help,
+    "year=s" => \$year);
 @config = split(/,/, join(',', @config));
 @tag = split(/,/, join(',', @tag));
 

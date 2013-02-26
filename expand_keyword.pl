@@ -67,6 +67,11 @@ sub ExpandHeader {
 	      my ($pre) = $1;
 	      my ($m) = $2;
 	      my ($post) = $3;
+	      if ($c =~ /%y/) {
+	          my($y) = $m =~ /([\d,-]+)/;
+		  $y = addyear($y);
+		  $c =~ s/%y/$y/;
+	      }
 	      print $OUT $pre;
 	      print $OUT "\$$k: ";
 	      $c =~ s/\n/\n$pre/g;
