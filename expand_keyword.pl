@@ -124,6 +124,7 @@ sub process_file {
 find({wanted => \&wanted}, @ARGV);
 exit(0);
 __END__
+=pod
 =head1 NAME
 
 expand_keyword - Expand keyword into source files for release.
@@ -171,3 +172,4 @@ If you want to add language, please modify Release module.
 
 expand_keyword(1),
 release_config(5).
+=cut

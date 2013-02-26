@@ -35,9 +35,11 @@ sub ReadConf {
 	foreach $path (@path) {
 	    $f = "$path/$file";
 	    last if(-e $f);
+	    $f = "$path/$file.conf";
+	    last if(-e $f);
 	}
 	if (! -e $f) {
-	    print "cannot find config file $file\n";
+	    print "cannot find config file $f\n";
 	    next;
 	}
 	if(!open(FH, "<$f")) {
@@ -296,8 +298,8 @@ ArgCheck();
 ReadConf(@config);
 
 1;
-___END___
-
+__END__
+=pod
 =head1 name
 
 Release - The library to prepare release tool
@@ -339,3 +341,4 @@ The continue line of comment.
 The end of comment.
 =back
 =back
+=cut
