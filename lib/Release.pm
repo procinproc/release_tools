@@ -266,7 +266,8 @@ sub Usage {
     print(STDOUT "usage:\n");
     print(STDOUT "\t$0 -help\n");
     print(STDOUT "\t\tor\n");
-    print(STDOUT "\t$0 -config config_file,... [-tag tag,...] files ...\n");
+    print(STDOUT "\t$0 -config config_file,... [-tag tag,...] [-year year]".
+        " files ...\n");
 }
 
 sub ArgCheck {
