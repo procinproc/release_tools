@@ -1,4 +1,4 @@
-# $RIKEN_copyright: copyright 2013 RIKEN All rights reserved.$
+# $RIKEN_copyright: Copyright 2013 RIKEN All rights reserved.$
 # $GPL2: This program is free software; you can redistribute it and/or 
 # modify it under the terms of the GNU General Public License 
 # as published by the Free Software Foundation; either version 2 
@@ -12,7 +12,7 @@
 # You should have received a copy of the GNU General Public License 
 # along with this program; if not, write to the Free Software 
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.$
-# $RELEASE_TOOL_VERSION: 0.3$
+# $RELEASE_TOOL_VERSION: 0.31$
 .SUFFIXES: .pl
 INSTALL_ROOT = /work/release
 CONF_FILES = copyright.conf license.conf
