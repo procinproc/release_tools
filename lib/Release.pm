@@ -330,7 +330,7 @@ sub addyear {
 }
 
 # hqandle common argument
-@path=("@confpath@", ".");
+@path=(. "@confpath@");
 $year = (localtime())[5] + 1900;
 @path = split(/:/, $ENV{"RELTOOL_PATH"}) if (defined($ENV{"RELTOOL_PATH"}));
 @config = split(/,/, $ENV{"RELTOOL_CONF"}) if (defined($ENV{"RELTOOL_CONF"}));
