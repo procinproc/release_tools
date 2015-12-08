@@ -1,25 +1,11 @@
+# $RIKEN_copyright: Copyright 2015 RIKEN All rights reserved.$
 # Copyright (c) 2001,2000,1999,1998,1997
 #       Real World Computing Partnership
 # Copyright (C) 2003-2011 PC Cluster Consortium
-# $RIKEN_copyright: Copyright 2013-2014 RIKEN All rights reserved.$
-# $LGPL2:  This library is free software; you can redistribute it and/or 
-#     modify it under the terms of the GNU Lesser General Public 
-#     License as published by the Free Software Foundation; either 
-#     version 2 of the License, or (at your option) any later version. 
-#  
-#     This library is distributed in the hope that it will be useful, 
-#     but WITHOUT ANY WARRANTY; without even the implied warranty of 
-#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-#     Lesser General Public License for more details. 
-#  
-#     You should have received a copy of the GNU Lesser General Public 
-#     License along with this library; if not, write to the Free Software 
-#     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA $
-# $RELEASE_TOOL_VERSION: 0.32$
 # Written by Toyohisa Kameyama (kameyama@riken.jp)
 package Release;
 use Exporter 'import';
-use Getopt::Long;
+use Getopt::Long qw(:config pass_through);
 use Data::Dumper;
 use strict;
 use warnings;
@@ -42,11 +28,11 @@ sub ReadConf {
 	    last if(-e $f);
 	}
 	if (! -e $f) {
-	    print "cannot find config file $f\n";
+	    print STDERR "cannot find config file $file\n";
 	    next;
 	}
 	if(!open(FH, "<$f")) {
-	    print "cannot open config file $f\n";
+	    print STDERR "cannot open config file $f\n";
 	    next;
 	}
 	while(<FH>) {
@@ -337,7 +323,7 @@ sub addyear {
 $year = (localtime())[5] + 1900;
 @path = split(/:/, $ENV{"RELTOOL_PATH"}) if (defined($ENV{"RELTOOL_PATH"}));
 @config = split(/,/, $ENV{"RELTOOL_CONF"}) if (defined($ENV{"RELTOOL_CONF"}));
-GetOptions("config=s" => \@config, "tag=s" => \@tag, "help" => \$help,
+GetOptions("config=s" => \@config, "tags=s" => \@tag, "help" => \$help,
     "year=s" => \$year);
 @config = split(/,/, join(',', @config));
 @tag = split(/,/, join(',', @tag));

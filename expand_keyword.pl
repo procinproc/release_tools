@@ -1,33 +1,22 @@
 #!/usr/bin/perl
 
+# $RIKEN_copyright: Copyright 2015 RIKEN All rights reserved.$
+
 # Copyright (c) 2001,2000,1999,1998,1997
 #       Real World Computing Partnership
 # Copyright (C) 2003-2011 PC Cluster Consortium
-# $RIKEN_copyright: Copyright 2013-2014 RIKEN All rights reserved.$
-# $LGPL2:  This library is free software; you can redistribute it and/or 
-#     modify it under the terms of the GNU Lesser General Public 
-#     License as published by the Free Software Foundation; either 
-#     version 2 of the License, or (at your option) any later version. 
-#  
-#     This library is distributed in the hope that it will be useful, 
-#     but WITHOUT ANY WARRANTY; without even the implied warranty of 
-#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-#     Lesser General Public License for more details. 
-#  
-#     You should have received a copy of the GNU Lesser General Public 
-#     License along with this library; if not, write to the Free Software 
-#     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA $
-# $RELEASE_TOOL_VERSION: 0.32$
 
 use lib qw(@PERLLIB@);
-use Getopt::Long;
+use Getopt::Long qw(:config pass_through);
 use File::Find;
 use File::Temp qw(tempfile);
 use Release;
 use Data::Dumper;
 use strict;
 use warnings;
-use vars qw(@keywords $t);
+use vars qw(@keywords $t $verbose);
+
+$verbose = 0;
 
 sub match_1st {
     my($expr, $file) = @_;
@@ -58,7 +47,7 @@ sub ExpandHeader {
     my($file, @keywords) = @_;
     my($tmpfile, $OUT);
     my($dev, $ino, $mode);
-    open(IN, "<$file") || print "can't open $file.\n";
+    open(IN, "<$file") || die "can't open $file.\n";
     ($dev, $ino, $mode) = stat(IN);
     ($OUT, $tmpfile) = tempfile();
     while(<IN>) {
@@ -122,11 +111,12 @@ sub process_file {
    my($i) = $_;
    my ($comment);
 
-   print "Process: $i\n";
+   print "Process: $i\n" if($verbose);
    $comment = FileToComment($i);
    ExpandHeader($i,@keywords) if(defined($comment));
 }
 
+GetOptions("verbose" => \$verbose);
 @keywords = GetConfKeywords();
 find({wanted => \&wanted}, @ARGV);
 exit(0);
