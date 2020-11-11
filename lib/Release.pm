@@ -123,6 +123,9 @@ sub GetConfContents {
     "f90" => {'start' => '! ',
         'cont' => '! ',
 	'end' => '! '},
+    "python" => {'start' => '# ',
+        'cont' => '# ',
+	'end' => '# '},
 );       
 
 sub GetCommentStyle {
@@ -209,11 +212,16 @@ sub FileToComment {
 	if ($sufix eq ".java") {
 	    return GetCommentStyle("java");
 	}
+# for Fortran
 	if ($sufix eq ".f" || $sufix eq ".F") {
 	    return GetCommentStyle("f77");
 	}
 	if ($sufix eq ".f90" || $sufix eq ".F90") {
 	    return GetCommentStyle("f90");
+	}
+# for python
+	if ($sufix eq ".py") {
+	    return GetCommentStyle("python");
 	}
     }
 
