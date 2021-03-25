@@ -1,0 +1,192 @@
+キーワード追加/拡張ツール
+
+ソフトウエアをリリースするときに, 各ソースファイルに著作権やライセンスなどのテキストを挿入することを求められる.
+また, version 番号など, リリースのたびに更新する必要があるテキストもある.
+このソフトウエアはソースファイル中にテキストを挿入する手間を軽減するものである.
+
+たとえば, hello.c という以下のファイルを作っているとする.
+
+    #include <stdio.h>
+    main()
+    {
+        priintf("hello, world\n");
+    }
+
+
+著作権表示を行うために, 以下の内容の test.conf を用意する.
+
+    license HALLO_LICENSE This is hallo license. \
+       you can use this.
+    copyright RIKEN_COPYRIGHT Copyright %y RIKEN.
+    copyright2 RCCSPYRIGHT Copyright %y RIKEN R-CCS.
+    version HELLO_VERSION 0.2
+
+
+ここで
+
+    $ add_keyword -config test -tag license,copyright,version hello.c
+
+
+を実行すると, hello.c の内容は
+
+    /* 
+     * $HALLO_LICENSE:$
+     * $RIKEN_COPYRIGHT:$
+     * $HELLO_VERSION:$
+     */
+    #include <stdio.h>
+    main()
+    {
+        priintf("hello, world\n");
+    }
+
+
+となる.
+License, copyright をいれるために
+
+    $ expand_keyword -config test -tag license,copyright hello.c
+
+
+を実行すると
+
+    /* 
+     * $HALLO_LICENSE: This is hallo license. 
+     *    you can use this.$
+     * $RIKEN_COPYRIGHT: Copyright 2013 RIKEN.$
+     * $HELLO_VERSION:$
+     */
+    #include <stdio.h>
+    main()
+    {
+        priintf("hello, world\n");
+    }
+
+
+となる.
+version0.1 をリリースするときには
+
+    $ expand_keyword -config test -tag license,copyright,version hello.c
+
+
+を実行すると
+
+    /* 
+     * $HALLO_LICENSE: This is hallo license. 
+     *    you can use this.$
+     * $RIKEN_COPYRIGHT: Copyright 2013 RIKEN.$
+     * $HELLO_VERSION: 0.1$
+     */
+    #include <stdio.h>
+    main()
+    {
+        priintf("hello, world\n");
+    }
+
+
+となる.
+version 0,2 をリリースするときは, test.config の version の行を
+
+    version HELLO_VERSION 0.2
+
+
+に変更し, 再び
+
+    $ expand_keyword -config test -tag license,copyright,version hello.c
+
+
+を実行する.
+このコマンドを 2014 年に実行したとき
+
+    /* 
+     * $HALLO_LICENSE: This is hallo license. 
+     *    you can use this.$
+     * $RIKEN_COPYRIGHT: Copyright 2013-2014 RIKEN.$
+     * $HELLO_VERSION: 0.2$
+     */
+    #include <stdio.h>
+    main()
+    {
+        priintf("hello, world\n");
+    }
+
+
+となる.
+
+コマンドの入手
+
+コマンドは git で管理している
+
+    $ git clone git@git.sys.r-ccs.riken.jp:software/release_tools
+
+
+で最新版を入手できる
+
+インストール
+
+Makefile の INSTALL_ROOT 変数に install 先を指定して
+
+   $ make
+   $ make install
+
+
+で install できる
+
+config file
+
+config file の形式は
+
+    tag keyword contents
+
+
+になっている.
+tag はコマンド行で指定するためのタグである.
+keyword は add_keyword で挿入するキーワードである.
+一つの tag に複数の keyword を書くことができる.
+contents は expand_keyword で挿入するテキストである.
+
+contents に %y と書いておくと, expand_keyword のときに現在の年
+(もしくは -year で指定した年) に置き換わる.
+その項目に年と識別できるものがあると, その年に現在の年が追加される.
+たとえば,
+
+    Copyright %y Riken
+
+
+という contents があり, ファイルの該当する部分が
+
+    Copyright 2012 Riken
+
+
+だったとき, 2013 年に実行すると
+
+    Copyright 2012-2013 Riken
+
+
+に 2014 年に実行すると
+
+    Copyright 2012,2014 Riken
+
+
+に置き換わる.
+
+行末に \ を置くことで, 複数行のテキストを置くことができる.
+install 先の etc に以下の config file が install される
+
+    copyright.conf 著作権関連
+    license.conbf ライセンス関連
+
+使い方
+
+install 先の bin をパスに追加して
+
+    add_keyword -config config_files -tag tags files
+    expand_keyword -config config_files -tag tags foles
+
+
+のように使用する.
+config_files, tas は "," で区切ることにより複数書くことができる.
+config files は install directory の etc とカレントディレクトリをこの順に探す.
+
+files は複数書くことができる.
+directory を指定することもでき, directory の下で処理できるファイルすべてに挿入する.
+

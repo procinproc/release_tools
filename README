@@ -1,192 +1,180 @@
-キーワード追加/拡張ツール
+Keyword addition / extension tool
 
-ソフトウエアをリリースするときに, 各ソースファイルに著作権やライセンスなどのテキストを挿入することを求められる.
-また, version 番号など, リリースのたびに更新する必要があるテキストもある.
-このソフトウエアはソースファイル中にテキストを挿入する手間を軽減するものである.
+When you release software, you will be required to insert text such as
+copyright and license into each source file. 
+There are also texts that need to be updated with each release, such
+as the version number. 
+This software saves you the trouble of inserting text in the source
+file. 
 
-たとえば, hello.c という以下のファイルを作っているとする.
+For example, suppose you are creating the following file called hello.c.
 
     #include <stdio.h>
-    main()
+    main ()
     {
-        priintf("hello, world\n");
+        priintf ("hello, world \ n");
     }
 
 
-著作権表示を行うために, 以下の内容の test.conf を用意する.
+Prepare test.conf, for example, with the following contents to display
+the copyright. 
 
     license HALLO_LICENSE This is hallo license. \
        you can use this.
-    copyright RIKEN_COPYRIGHT Copyright %y RIKEN.
-    copyright2 RCCSPYRIGHT Copyright %y RIKEN R-CCS.
+    copyright RIKEN_COPYRIGHT Copyright% y RIKEN.
+    copyright2 RCCSPYRIGHT Copyright% y RIKEN R-CCS.
     version HELLO_VERSION 0.2
 
 
-ここで
+here
 
-    $ add_keyword -config test -tag license,copyright,version hello.c
+    $ add_keyword -config test -tag license, copyright, version hello.c
 
 
-を実行すると, hello.c の内容は
+When you execute, the contents of hello.c will be the follwoing;
 
-    /* 
-     * $HALLO_LICENSE:$
-     * $RIKEN_COPYRIGHT:$
-     * $HELLO_VERSION:$
-     */
+    / *
+     * $ HALLO_LICENSE: $
+     * $ RIKEN_COPYRIGHT: $
+     * $ HELLO_VERSION: $
+     * /
     #include <stdio.h>
-    main()
+    main ()
     {
-        priintf("hello, world\n");
+        priintf ("hello, world \ n");
     }
 
 
-となる.
-License, copyright をいれるために
+To put license and copyright
 
-    $ expand_keyword -config test -tag license,copyright hello.c
+    $ expand_keyword -config test -tag license, copyright hello.c
 
 
-を実行すると
+and you will get;
 
-    /* 
-     * $HALLO_LICENSE: This is hallo license. 
-     *    you can use this.$
-     * $RIKEN_COPYRIGHT: Copyright 2013 RIKEN.$
-     * $HELLO_VERSION:$
-     */
+    / *
+     * $ HALLO_LICENSE: This is hallo license.
+     * you can use this. $
+     * $ RIKEN_COPYRIGHT: Copyright 2013 RIKEN. $
+     * $ HELLO_VERSION: $
+     * /
     #include <stdio.h>
-    main()
+    main ()
     {
-        priintf("hello, world\n");
+        priintf ("hello, world \ n");
+    }
+
+When releasing version0.1
+
+    $ expand_keyword -config test -tag license, copyright, version hello.c
+
+
+You will get;
+
+    / *
+     * $ HALLO_LICENSE: This is hallo license.
+     * you can use this. $
+     * $ RIKEN_COPYRIGHT: Copyright 2013 RIKEN. $
+     * $ HELLO_VERSION: 0.1 $
+     * /
+    #include <stdio.h>
+    main ()
+    {
+        priintf ("hello, world \ n");
     }
 
 
-となる.
-version0.1 をリリースするときには
-
-    $ expand_keyword -config test -tag license,copyright,version hello.c
-
-
-を実行すると
-
-    /* 
-     * $HALLO_LICENSE: This is hallo license. 
-     *    you can use this.$
-     * $RIKEN_COPYRIGHT: Copyright 2013 RIKEN.$
-     * $HELLO_VERSION: 0.1$
-     */
-    #include <stdio.h>
-    main()
-    {
-        priintf("hello, world\n");
-    }
-
-
-となる.
-version 0,2 をリリースするときは, test.config の version の行を
+When releasing version 0,2, put the version line in test.config
 
     version HELLO_VERSION 0.2
 
 
-に変更し, 再び
+Change to and again
 
-    $ expand_keyword -config test -tag license,copyright,version hello.c
+    $ expand_keyword -config test -tag license, copyright, version hello.c
 
 
-を実行する.
-このコマンドを 2014 年に実行したとき
+To run. If this command is run in 2014, you will get;
 
-    /* 
-     * $HALLO_LICENSE: This is hallo license. 
-     *    you can use this.$
-     * $RIKEN_COPYRIGHT: Copyright 2013-2014 RIKEN.$
-     * $HELLO_VERSION: 0.2$
-     */
+    / *
+     * $ HALLO_LICENSE: This is hallo license.
+     * you can use this. $
+     * $ RIKEN_COPYRIGHT: Copyright 2013-2014 RIKEN. $
+     * $ HELLO_VERSION: 0.2 $
+     * /
     #include <stdio.h>
-    main()
+    main ()
     {
-        priintf("hello, world\n");
+        priintf ("hello, world \ n");
     }
 
 
-となる.
+Installation
 
-コマンドの入手
-
-コマンドは git で管理している
-
-    $ git clone git@git.sys.r-ccs.riken.jp:software/release_tools
-
-
-で最新版を入手できる
-
-インストール
-
-Makefile の INSTALL_ROOT 変数に install 先を指定して
+Specify the install destination in the INSTALL_ROOT variable of the Makefile
 
    $ make
    $ make install
 
 
-で install できる
+Can be installed with config file
 
-config file
-
-config file の形式は
+The format of the config file is;
 
     tag keyword contents
 
 
-になっている.
-tag はコマンド行で指定するためのタグである.
-keyword は add_keyword で挿入するキーワードである.
-一つの tag に複数の keyword を書くことができる.
-contents は expand_keyword で挿入するテキストである.
+Here, -tag- is a tag to be specified on the command line.
+-keyword- is a keyword to be inserted with add_keyword.
+You can write multiple keywords in one tag.
+-contents- is the text to insert with expand_keyword.
 
-contents に %y と書いておくと, expand_keyword のときに現在の年
-(もしくは -year で指定した年) に置き換わる.
-その項目に年と識別できるものがあると, その年に現在の年が追加される.
-たとえば,
+If you write %y in contents, the current year when expand_keyword
+Replaces (or the year specified by -year).
+If the item can be identified as a year, the current year is added to
+that year. For example,
 
     Copyright %y Riken
 
 
-という contents があり, ファイルの該当する部分が
+There is contents, and the corresponding part of the file is
 
     Copyright 2012 Riken
 
 
-だったとき, 2013 年に実行すると
+When it was run in 2013
 
     Copyright 2012-2013 Riken
 
 
-に 2014 年に実行すると
+To run in 2014
 
     Copyright 2012,2014 Riken
 
 
-に置き換わる.
+Replaces with.
 
-行末に \ を置くことで, 複数行のテキストを置くことができる.
-install 先の etc に以下の config file が install される
+You can put multiple lines of text by putting \ at the end of the line.
+The following config file is installed in the destination etc
 
-    copyright.conf 著作権関連
-    license.conbf ライセンス関連
+    copyright.conf Copyright related
+    license.conbf License related
 
-使い方
+How to use
 
-install 先の bin をパスに追加して
+install Add the destination bin to the path
 
     add_keyword -config config_files -tag tags files
     expand_keyword -config config_files -tag tags foles
 
 
-のように使用する.
-config_files, tas は "," で区切ることにより複数書くことができる.
-config files は install directory の etc とカレントディレクトリをこの順に探す.
+Use like.
+Multiple config_files and tas can be written by separating them with ",".
+config files looks for etc in install directory and the current
+directory in that order. 
 
-files は複数書くことができる.
-directory を指定することもでき, directory の下で処理できるファイルすべてに挿入する.
+You can write multiple files.
+You can also specify a directory and insert it into all files that can
+be processed under the directory.
 
+Enjoy!
