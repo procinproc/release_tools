@@ -113,8 +113,8 @@ Installation
 
 Specify the install destination in the INSTALL_ROOT variable of the Makefile
 
-   $ make
-   $ make install
+   $ make INSTALL_ROOT=<INSTALL_DIR>
+   $ make INSTALL_ROOT=<INSTALL_DIR> install
 
 
 Can be installed with config file
